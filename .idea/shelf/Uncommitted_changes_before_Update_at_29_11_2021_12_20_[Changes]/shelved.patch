@@ -1,0 +1,360 @@
+Index: src/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>public class User {\r\n    protected String username, name, address, password;\r\n\r\n    public User(String username, String password, String name, String address){\r\n        this.address = address;\r\n        this.name = name;\r\n        this.username = username;\r\n        this.password = password;\r\n    }\r\n\r\n\r\n\r\n    public User(){\r\n\r\n    }\r\n\r\n    public String getAddress() {\r\n        return address;\r\n    }\r\n\r\n    public String getName() {\r\n        return name;\r\n    }\r\n\r\n    public String getPassword() {\r\n        return password;\r\n    }\r\n\r\n    public String getUsername() {\r\n        return username;\r\n    }\r\n\r\n    public void setName(String name) {\r\n        this.name = name;\r\n    }\r\n\r\n    public void setAddress(String address) {\r\n        this.address = address;\r\n    }\r\n\r\n    public void setPassword(String password) {\r\n        this.password = password;\r\n    }\r\n\r\n    public void setUsername(String username) {\r\n        this.username = username;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/User.java b/src/User.java
+--- a/src/User.java	(revision 396d3dd6a754fca55afd9d92350be3a58e3742ca)
++++ b/src/User.java	(date 1637942420931)
+@@ -1,6 +1,6 @@
+ public class User {
+-    protected String username, name, address, password;
+-
++    private String username, name, address, password;
++    private int userID;
+     public User(String username, String password, String name, String address){
+         this.address = address;
+         this.name = name;
+@@ -30,6 +30,10 @@
+         return username;
+     }
+ 
++    public int getUserID() {
++        return userID;
++    }
++
+     public void setName(String name) {
+         this.name = name;
+     }
+Index: src/Customer.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>public class Customer extends User{\r\n    public Customer(String username, String password, String name, String address){\r\n        super(username, password, name, address);\r\n    }\r\n    public boolean reservation(){\r\n        //για κρατησεις\r\n        return true;\r\n    }\r\n    public void cancellation(){\r\n        //για ακυρωσεις\r\n    }\r\n    public void search(){\r\n        //για αναζητηση δωματιων βαση χαρακτ.\r\n        //οι τυποι δεδομενων θα πρεπει να αλλαξουν\r\n    }\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Customer.java b/src/Customer.java
+--- a/src/Customer.java	(revision 396d3dd6a754fca55afd9d92350be3a58e3742ca)
++++ b/src/Customer.java	(date 1637942420931)
+@@ -1,18 +1,64 @@
+-public class Customer extends User{
+-    public Customer(String username, String password, String name, String address){
++import java.time.LocalDate;
++import java.util.ArrayList;
++
++public class Customer extends User {
++    ArrayList<Room> query;
++    Test test;
++
++    public Customer(String username, String password, String name, String address) {
+         super(username, password, name, address);
++        query = new ArrayList<>();
++        test = new Test();
+     }
+-    public boolean reservation(){
+-        //για κρατησεις
++
++    public boolean reservation(Filter searchFilter) {
++        query = search(searchFilter);
++        //εδω θελει print τα δωματια απο πανω
++        if (query.isEmpty())
++            return false;
++        //ζητα με καποιιο τροπο (μαλλον απο αλλη κλαση) ποιο δωματιο θελει να κλεισει ο χρηστης
++        int choice = 0;
++        LocalDate start, end;
++        if (searchFilter.getStart() == null && searchFilter.getEnd() == null){
++            start = LocalDate.parse("2021-11-26");
++            end = LocalDate.parse("2021-11-28");
++            //εδω πανω, θα ζητας απο τον χρηστη ημερομηνιες
++        }
++        start = searchFilter.getStart();
++        end = searchFilter.getEnd();
++
++        if (test.rooms.get(choice).isFree(searchFilter.getStart(), searchFilter.getEnd()))
++            test.rooms.get(choice).reserve(getUserID(),start,end);
+         return true;
+     }
+-    public void cancellation(){
++
++    public void cancellation() {
+         //για ακυρωσεις
+     }
+-    public void search(){
+-        //για αναζητηση δωματιων βαση χαρακτ.
+-        //οι τυποι δεδομενων θα πρεπει να αλλαξουν
+-    }
+-
+ 
++    public ArrayList<Room> search(Filter searchFilter) {
++        for (Room room : test.rooms) {
++            if (searchFilter.getType() != null && searchFilter.getType().compareTo(room.getType()) == 0)
++                query.add(room);
++            if (searchFilter.getPrice() != null && searchFilter.getPrice() <= room.getPrice())
++                query.add(room);
++            if (searchFilter.getArea() != null && searchFilter.getArea() <= room.getArea())
++                query.add(room);
++            if (searchFilter.getBeds() != null && searchFilter.getBeds() <= room.getBeds())
++                query.add(room);
++            if (searchFilter.hasWifi() != null && searchFilter.hasWifi() == room.hasWifi())
++                query.add(room);
++            if (searchFilter.hasParking() != null && searchFilter.hasParking() == room.hasParking())
++                query.add(room);
++            if (searchFilter.hasBreakfast() != null && searchFilter.hasBreakfast() == room.hasBreakfast())
++                query.add(room);
++            if (searchFilter.hasKitchen() != null && searchFilter.hasKitchen() == room.hasKitchen())
++                query.add(room);
++            if ((searchFilter.getStart() != null && searchFilter.getEnd() != null) && room.isFree(searchFilter.getStart(), searchFilter.getEnd()))
++                query.add(room);
++            else
++                query.add(room);
++        }
++        return query;
++    }
+ }
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"817e444d-4ddd-4e4f-a988-8d81ab965eea\" name=\"Changes\" comment=\"\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/Provider.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/Provider.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/Room.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/Room.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"21MRAwIhZFH9tp3aPYOWLDI0Dt9\" />\r\n  <component name=\"ProjectLevelVcsManager\">\r\n    <ConfirmationsSetting value=\"1\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">\r\n    <property name=\"RunOnceActivity.OpenProjectViewOnStart\" value=\"true\" />\r\n    <property name=\"RunOnceActivity.ShowReadmeOnStart\" value=\"true\" />\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"817e444d-4ddd-4e4f-a988-8d81ab965eea\" name=\"Changes\" comment=\"\" />\r\n      <created>1637748829302</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1637748829302</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"Added in Room a function called equal that checks if two rooms are the same\">\r\n      <created>1637779347563</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1637779347563</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"2\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State>\r\n              <option name=\"FILTERS\">\r\n                <map>\r\n                  <entry key=\"branch\">\r\n                    <value>\r\n                      <list>\r\n                        <option value=\"origin/main\" />\r\n                      </list>\r\n                    </value>\r\n                  </entry>\r\n                </map>\r\n              </option>\r\n            </State>\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n    <option name=\"oldMeFiltersMigrated\" value=\"true\" />\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"Added in Room a function called equal that checks if two rooms are the same\" />\r\n    <MESSAGE value=\"Updated Provider&#10;code for the constructor &#10;and the following functions:&#10;addRoom&#10;editRoom&#10;deleteRoom&#10;find [NEW](finds rooms in the ArrayList)\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Updated Provider&#10;code for the constructor &#10;and the following functions:&#10;addRoom&#10;editRoom&#10;deleteRoom&#10;find [NEW](finds rooms in the ArrayList)\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 396d3dd6a754fca55afd9d92350be3a58e3742ca)
++++ b/.idea/workspace.xml	(date 1638027651056)
+@@ -1,10 +1,13 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ChangeListManager">
+-    <list default="true" id="817e444d-4ddd-4e4f-a988-8d81ab965eea" name="Changes" comment="">
++    <list default="true" id="817e444d-4ddd-4e4f-a988-8d81ab965eea" name="Changes" comment="Updated Provider&#10;code for the constructor &#10;and the following functions:&#10;addRoom&#10;editRoom&#10;deleteRoom&#10;find [NEW](finds rooms in the ArrayList)">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Customer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Customer.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/Provider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Provider.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Reservation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Reservation.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/Room.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Room.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/User.java" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -32,6 +35,7 @@
+   <component name="PropertiesComponent">
+     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
++    <property name="WebServerToolWindowFactoryState" value="false" />
+   </component>
+   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+   <component name="TaskManager">
+@@ -41,6 +45,9 @@
+       <option name="number" value="Default" />
+       <option name="presentableId" value="Default" />
+       <updated>1637748829302</updated>
++      <workItem from="1637918616249" duration="686000" />
++      <workItem from="1637937161239" duration="5215000" />
++      <workItem from="1638027534739" duration="114000" />
+     </task>
+     <task id="LOCAL-00001" summary="Added in Room a function called equal that checks if two rooms are the same">
+       <created>1637779347563</created>
+@@ -51,6 +58,9 @@
+     </task>
+     <option name="localTasksCounter" value="2" />
+     <servers />
++  </component>
++  <component name="TypeScriptGeneratedFilesManager">
++    <option name="version" value="3" />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+     <option name="TAB_STATES">
+Index: src/Provider.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import java.util.ArrayList;\r\n\r\npublic class Provider extends User {\r\n\r\n    public ArrayList<Room> rooms;\r\n\r\n    /** Constructor calls the User constructor and initialises the ArrayList*/\r\n    public Provider(String username, String password, String name, String address){\r\n        super(username,password,name,address);\r\n        rooms = new ArrayList<>();\r\n    }\r\n\r\n\r\n    /**Creates a room with the following characteristics and then adds it to the ArrayList*/\r\n    public boolean addRoom(String type, int price, int area, int beds, boolean wifi, boolean parking, boolean breakfast, boolean kitchen){\r\n        Room room;\r\n        room = new Room(type,price,area,beds,wifi,parking,breakfast,kitchen);\r\n        rooms.add(room);\r\n        return true;\r\n    }\r\n\r\n    /**adds the room to the ArrayList*/\r\n    public boolean addRoom(Room room){\r\n        //θα δεχεται τα χαρακτηρ. του δωματιου που θα βαζει στο συστημα\r\n        rooms.add(room);\r\n        return true;\r\n    }\r\n\r\n\r\n    /** This function edits the room that is inserted with the following parameters\r\n     * @param room   will edit this room that is already saved in the ArrayList\r\n     * @return FALSE if the room that is inserted is NOT in the ArrayList else TRUE*/\r\n    public boolean editRoom(Room room,String type, int price, int area, int beds, boolean wifi, boolean parking, boolean breakfast, boolean kitchen){\r\n        int i=find(room);\r\n        if(i<0){\r\n            return false;\r\n        }\r\n        rooms.get(i).setType(type);\r\n        rooms.get(i).setPrice(price);\r\n        rooms.get(i).setArea(area);\r\n        rooms.get(i).setBeds(beds);\r\n        rooms.get(i).setWifi(wifi);\r\n        rooms.get(i).setParking(parking);\r\n        rooms.get(i).setBreakfast(breakfast);\r\n        rooms.get(i).setKitchen(kitchen);\r\n        //θα δεχεται τα χαρακτηρ. του δωματιου που θα αλλαζει στο συστημα\r\n        return true;\r\n    }\r\n\r\n    /**edits the room in the \"i\" position of the ArrayList*/\r\n    public boolean editRoom(int i,String type, int price, int area, int beds, boolean wifi, boolean parking, boolean breakfast, boolean kitchen){\r\n        return editRoom(rooms.get(i),type,price,area,beds,wifi ,parking,breakfast,kitchen);\r\n    }\r\n\r\n\r\n    /**deletes the room that is inserted*/\r\n    public void deleteRoom(Room room){\r\n        int i=find(room);\r\n        if(i<0){\r\n            return;\r\n        }\r\n        rooms.remove(room);\r\n    }\r\n\r\n    /**deletes the room that is in the \"i\" position of the ArrayList*/\r\n    public void deleteRoom(int i){\r\n        if(i<0||i>=rooms.size()){\r\n            return;\r\n        }\r\n        rooms.remove(i);\r\n        //θα διαγραφει ενα δωματιο\r\n    }\r\n\r\n\r\n    /** Finds the room that is inserted and returns its location in the ArrayList else returns -1*/\r\n    public int find(Room r){\r\n        //Set<Map.Entry<String,Integer>> s = m.entrySet();\r\n        for(int i = 0; i < rooms.size(); i++)\r\n        {\r\n            if(r.equal(rooms.get(i)))\r\n            {\r\n                return i;\r\n            }\r\n        }\r\n        return -1;\r\n    }\r\n\r\n    /**Prints the username, name and the address\r\n     */\r\n    public void profile(){\r\n        System.out.println(\"The username of this profile is : \"+username);\r\n        System.out.println(\"The name of the company is : \"+name);\r\n        System.out.println(\"and it is located in : \"+address);\r\n    }\r\n\r\n    public void printRoom(int i){\r\n        if(i>=0&&i<rooms.size())\r\n            rooms.get(i).print();\r\n        else\r\n            System.out.println(\"There is not a room in this location\");\r\n    }\r\n    /**This method prints all the rooms\r\n     */\r\n    public void printAllRooms(){\r\n        for(int i = 0; i < rooms.size(); i++){\r\n            System.out.printf(\"%d. \",i);\r\n            rooms.get(i).print();\r\n        }\r\n        System.out.println();\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Provider.java b/src/Provider.java
+--- a/src/Provider.java	(revision 396d3dd6a754fca55afd9d92350be3a58e3742ca)
++++ b/src/Provider.java	(date 1637939880946)
+@@ -1,3 +1,4 @@
++import java.time.LocalDate;
+ import java.util.ArrayList;
+ 
+ public class Provider extends User {
+@@ -12,9 +13,9 @@
+ 
+ 
+     /**Creates a room with the following characteristics and then adds it to the ArrayList*/
+-    public boolean addRoom(String type, int price, int area, int beds, boolean wifi, boolean parking, boolean breakfast, boolean kitchen){
++    public boolean addRoom(String type, int price, int area, int beds, boolean wifi, boolean parking, boolean breakfast, boolean kitchen, LocalDate start, LocalDate end){
+         Room room;
+-        room = new Room(type,price,area,beds,wifi,parking,breakfast,kitchen);
++        room = new Room(type, price, area, beds, wifi, parking, breakfast, kitchen, start, end);
+         rooms.add(room);
+         return true;
+     }
+@@ -84,28 +85,4 @@
+         }
+         return -1;
+     }
+-
+-    /**Prints the username, name and the address
+-     */
+-    public void profile(){
+-        System.out.println("The username of this profile is : "+username);
+-        System.out.println("The name of the company is : "+name);
+-        System.out.println("and it is located in : "+address);
+-    }
+-
+-    public void printRoom(int i){
+-        if(i>=0&&i<rooms.size())
+-            rooms.get(i).print();
+-        else
+-            System.out.println("There is not a room in this location");
+-    }
+-    /**This method prints all the rooms
+-     */
+-    public void printAllRooms(){
+-        for(int i = 0; i < rooms.size(); i++){
+-            System.out.printf("%d. ",i);
+-            rooms.get(i).print();
+-        }
+-        System.out.println();
+-    }
+ }
+\ No newline at end of file
+Index: src/Room.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\r\npublic class Room {\r\n    //χαρακτηριστικα δωματιου:\r\n    protected Integer price, area, beds;\r\n    protected Boolean wifi, parking, breakfast, kitchen;\r\n    protected String type;\r\n    protected Integer roomID;\r\n    //ημ/νια διαθεσμοτητας του δωματιου και μοναδικου κωδικο δωματιου\r\n\r\n    public Room(String type, int price, int area, int beds, boolean wifi, boolean parking, boolean breakfast, boolean kitchen){\r\n        this.area = area;\r\n        this.kitchen = kitchen;\r\n        this.breakfast = breakfast;\r\n        this.parking = parking;\r\n        this.wifi = wifi;\r\n        this.type = type;\r\n        this.price = price;\r\n        this.beds = beds;\r\n    }\r\n\r\n\r\n\r\n    public boolean equal(Room r1){\r\n        if(r1.getType().equals(this.getType()) && r1.getPrice()==this.getPrice() && r1.getArea()==this.getArea() && r1.getBeds()==this.getBeds() && r1.hasWifi()==this.hasWifi() && r1.hasParking()==this.hasParking() && r1.hasBreakfast()==this.hasBreakfast() && r1.hasKitchen()==this.hasKitchen()){\r\n            return true;\r\n        }\r\n        return false;\r\n    }\r\n\r\n    /**Prints the characteristics of a room\r\n     */\r\n    public void print(){\r\n        System.out.printf(\"type:%s, price:%d, area:%d, beds:%d, wifi:%b, parking:%b, breakfast:%b, kitchen:%b \",type,price,area,beds,wifi,parking,breakfast,kitchen);\r\n        System.out.println();\r\n    }\r\n\r\n\r\n    public int getArea() {\r\n        return area;\r\n    }\r\n\r\n    public int getBeds() {\r\n        return beds;\r\n    }\r\n\r\n    public int getPrice() {\r\n        return price;\r\n    }\r\n\r\n    public String getType() {\r\n        return type;\r\n    }\r\n\r\n    public boolean hasBreakfast() {\r\n        return breakfast;\r\n    }\r\n\r\n    public boolean hasKitchen() {\r\n        return kitchen;\r\n    }\r\n\r\n    public boolean hasParking() {\r\n        return parking;\r\n    }\r\n\r\n    public boolean hasWifi() {\r\n        return wifi;\r\n    }\r\n\r\n    public void setArea(int area) {\r\n        this.area = area;\r\n    }\r\n\r\n    public void setBeds(int beds) {\r\n        this.beds = beds;\r\n    }\r\n\r\n    public void setBreakfast(boolean breakfast) {\r\n        this.breakfast = breakfast;\r\n    }\r\n\r\n    public void setKitchen(boolean kitchen) {\r\n        this.kitchen = kitchen;\r\n    }\r\n\r\n    public void setParking(boolean parking) {\r\n        this.parking = parking;\r\n    }\r\n\r\n    public void setPrice(int price) {\r\n        this.price = price;\r\n    }\r\n\r\n    public void setType(String type) {\r\n        this.type = type;\r\n    }\r\n\r\n    public void setWifi(boolean wifi) {\r\n        this.wifi = wifi;\r\n    }\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Room.java b/src/Room.java
+--- a/src/Room.java	(revision 396d3dd6a754fca55afd9d92350be3a58e3742ca)
++++ b/src/Room.java	(date 1637941706853)
+@@ -1,13 +1,20 @@
++import java.time.LocalDate;
++import java.util.ArrayList;
+ 
+ public class Room {
+     //χαρακτηριστικα δωματιου:
+-    protected Integer price, area, beds;
+-    protected Boolean wifi, parking, breakfast, kitchen;
+-    protected String type;
+-    protected Integer roomID;
++    private Integer price, area, beds;
++    private Boolean wifi, parking, breakfast, kitchen;
++    private String type;
++    private Integer roomID;
++    private LocalDate start, end;
++    private ArrayList<LocalDate> freeDates;
++    private ArrayList<Reservation> reserves;
+     //ημ/νια διαθεσμοτητας του δωματιου και μοναδικου κωδικο δωματιου
+ 
+-    public Room(String type, int price, int area, int beds, boolean wifi, boolean parking, boolean breakfast, boolean kitchen){
++    public Room(String type, int price, int area, int beds, boolean wifi, boolean parking, boolean breakfast, boolean kitchen, LocalDate start, LocalDate end){
++        freeDates = new ArrayList<>();
++        reserves = new ArrayList<>();
+         this.area = area;
+         this.kitchen = kitchen;
+         this.breakfast = breakfast;
+@@ -16,24 +23,65 @@
+         this.type = type;
+         this.price = price;
+         this.beds = beds;
++        this.start = start;
++        this.end = end;
++        while (!start.isAfter(end)){
++            freeDates.add(start);
++            start = start.plusDays(1);
++        }
+     }
+-
+-
+ 
+-    public boolean equal(Room r1){
+-        if(r1.getType().equals(this.getType()) && r1.getPrice()==this.getPrice() && r1.getArea()==this.getArea() && r1.getBeds()==this.getBeds() && r1.hasWifi()==this.hasWifi() && r1.hasParking()==this.hasParking() && r1.hasBreakfast()==this.hasBreakfast() && r1.hasKitchen()==this.hasKitchen()){
++    public boolean equal(Room r1) {
++        if (r1.getType().equals(this.getType()) && r1.getPrice() == this.getPrice() && r1.getArea() == this.getArea() && r1.getBeds() == this.getBeds() && r1.hasWifi() == this.hasWifi() && r1.hasParking() == this.hasParking() && r1.hasBreakfast() == this.hasBreakfast() && r1.hasKitchen() == this.hasKitchen()) {
+             return true;
+         }
+         return false;
+     }
+ 
+-    /**Prints the characteristics of a room
+-     */
+-    public void print(){
+-        System.out.printf("type:%s, price:%d, area:%d, beds:%d, wifi:%b, parking:%b, breakfast:%b, kitchen:%b ",type,price,area,beds,wifi,parking,breakfast,kitchen);
+-        System.out.println();
++    public boolean reserve(int userID, LocalDate start, LocalDate end){
++        if (!freeDates.contains(start) && !freeDates.contains(end))
++            return false;
++        else {
++            int i = 0, j = 0;
++            boolean found = false;
++
++            do {
++                if (freeDates.get(i).isEqual(start))
++                    found = true;
++                i++;
++            } while (i < freeDates.size() && !found);
++
++            found = false;
++            do {
++                if (freeDates.get(j).isEqual(end))
++                    found = true;
++                j++;
++            } while(j < freeDates.size() && !found);
++
++            reserves.add(new Reservation(userID, start, end));
++
++            freeDates.subList(i, j + 1).clear();
++            return true;
++        }
++    }
++
++    public ArrayList<LocalDate> getFreeDates(){
++        return freeDates;
+     }
+ 
++    public boolean isFree(LocalDate start, LocalDate end){
++        ArrayList<LocalDate> wantedDates = new ArrayList<>();
++
++        if (!freeDates.contains(start) && !freeDates.contains(end))
++            return false;
++
++        while (!start.isAfter(end)){
++            wantedDates.add(start);
++            start = start.plusDays(1);
++        }
++
++        return freeDates.containsAll(wantedDates);
++    }
+ 
+     public int getArea() {
+         return area;
+Index: src/Reservation.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>public class Reservation {\r\n    int reservationID, userID, start, end;\r\n\r\n    public Reservation(int userID, int start, int end){\r\n        this.userID = userID;\r\n        this.start = start;\r\n        this.end = end;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/Reservation.java b/src/Reservation.java
+--- a/src/Reservation.java	(revision 396d3dd6a754fca55afd9d92350be3a58e3742ca)
++++ b/src/Reservation.java	(date 1637939724994)
+@@ -1,7 +1,11 @@
++import java.time.LocalDate;
++import java.util.Random;
++
+ public class Reservation {
+-    int reservationID, userID, start, end;
++    private int reservationID, userID;
++    private LocalDate start, end;
+ 
+-    public Reservation(int userID, int start, int end){
++    public Reservation(int userID, LocalDate start, LocalDate end){
+         this.userID = userID;
+         this.start = start;
+         this.end = end;

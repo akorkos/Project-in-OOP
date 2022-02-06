@@ -1,0 +1,25 @@
+### Java template
+# Compiled class file
+*.class
+AdminIO.jfd
+CancellationCustomerIO.jfd
+CustomerIO.jfd
+InfoCustomerIO.jfd
+MessagesCustomerIO.jfd
+ReserveCustomerIO.jfd
+SearchResAdmin.jfd
+SearchUserAdmin.jfd
+UI.jfd
+VerifyAdminIO.jfd
+AdminIO.jfd
+CancellationCustomerIO.jfd
+CustomerIO.jfd
+InfoCustomerIO.jfd
+MessagesCustomerIO.jfd
+ReserveCustomerIO.jfd
+SearchResAdmin.jfd
+SearchUserAdmin.jfd
+UI.jfd
+VerifyAdminIO.jfd
+# Project exclude paths
+/out/
